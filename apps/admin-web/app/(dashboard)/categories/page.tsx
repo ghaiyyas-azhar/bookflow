@@ -1,0 +1,13 @@
+import { Layers } from "lucide-react";
+
+export default function CategoriesPage() {
+  return (
+    <div className="flex flex-1 flex-col items-center justify-center p-8 text-center">
+      <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+        <Layers className="h-8 w-8" />
+      </div>
+      <h1 className="mt-6 text-2xl font-semibold text-foreground">Categories</h1>
+      <p className="mt-2 text-muted-foreground">Manage categories. Content coming soon.</p>
+    </div>
+  );
+}
