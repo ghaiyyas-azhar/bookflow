@@ -18,7 +18,7 @@ export function PageTransition({ children }: PageTransitionProps) {
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -8 }}
         transition={{ duration: 0.2 }}
-        className="flex-1 min-h-screen"
+        className="flex-1 min-h-0"
       >
         {children}
       </motion.main>

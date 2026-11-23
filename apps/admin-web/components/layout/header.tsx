@@ -35,7 +35,9 @@ interface UserMenuItem {
 export function Header() {
   const { theme, setTheme } = useTheme();
   const pathname = usePathname();
+  const [searchQuery, setSearchQuery] = React.useState("");
   const [isSearchOpen, setIsSearchOpen] = React.useState(false);
+  const searchInputRef = React.useRef<HTMLInputElement>(null);
   const [isUserMenuOpen, setIsUserMenuOpen] = React.useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = React.useState(false);
   const [notifications, setNotifications] = React.useState<Notification[]>(mockNotifications);
@@ -134,74 +136,63 @@ export function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-30 w-full border-b border-border bg-background/80 backdrop-blur-sm">
-      <div className="flex h-16 items-center gap-4 px-4">
-        <div className="flex-1 flex items-center gap-4">
-          <div className="relative flex-1 max-w-md hidden md:block" ref={searchRef}>
-            <button
-              onClick={() => setIsSearchOpen(!isSearchOpen)}
-              className={cn(
-                "flex w-full items-center gap-3 rounded-lg bg-muted px-4 py-2 text-sm text-muted-foreground",
-                "transition-all duration-200 hover:bg-accent",
-                isSearchOpen && "bg-background border border-ring shadow-popover"
-              )}
-              aria-label="Search"
-              aria-expanded={isSearchOpen}
-              aria-haspopup="true"
+    <header className="sticky top-3 z-30 mb-6 flex items-center gap-4">
+      {/* Search pill */}
+      <div className="relative flex-1 max-w-lg hidden md:block" ref={searchRef}>
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+        <input
+          ref={searchInputRef}
+          type="text"
+          value={searchQuery}
+          onChange={(e) => { setSearchQuery(e.target.value); setIsSearchOpen(true); }}
+          onFocus={() => setIsSearchOpen(true)}
+          placeholder="Search bookings, customers..."
+          className="w-full glass-pill rounded-full h-11 pl-11 pr-16 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/50"
+          aria-label="Search"
+        />
+        <kbd className="absolute right-4 top-1/2 -translate-y-1/2 hidden sm:inline-flex h-5 items-center gap-1 rounded-md bg-muted/60 px-1.5 text-[10px] font-mono text-muted-foreground pointer-events-none">
+          <span>⌘</span>K
+        </kbd>
+
+        <AnimatePresence>
+          {isSearchOpen && (
+            <motion.div
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              className="absolute left-0 right-0 top-full mt-3 glass-card rounded-2xl p-3 max-h-64 overflow-y-auto"
             >
-              <Search className="h-4 w-4 flex-shrink-0" />
-              <span className="truncate">Search bookings, customers...</span>
-              <kbd className="hidden sm:inline-flex h-5 items-center gap-1 rounded bg-muted px-1.5 text-[10px] font-mono text-muted-foreground">
-                <span>⌘</span>K
-              </kbd>
-            </button>
+              <div className="space-y-2">
+                {[
+                  { href: "/bookings", label: "Recent Bookings", icon: CalendarCheck },
+                  { href: "/customers", label: "Customers", icon: UserIcon },
+                  { href: "/services", label: "Services", icon: Scissors },
+                ]
+                  .filter((i) => i.label.toLowerCase().includes(searchQuery.toLowerCase()))
+                  .map((item) => (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={() => { setIsSearchOpen(false); setSearchQuery(""); }}
+                      className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm hover:bg-muted/60 transition-colors"
+                    >
+                      <item.icon className="h-4 w-4 text-muted-foreground" />
+                      <span>{item.label}</span>
+                    </Link>
+                  ))}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
 
-            <AnimatePresence>
-              {isSearchOpen && (
-                <motion.div
-                  initial={{ opacity: 0, y: -8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -8 }}
-                  className="absolute left-0 right-0 top-full mt-2 rounded-lg bg-popover border border-border shadow-popover p-3 max-h-64 overflow-y-auto"
-                >
-                  <div className="space-y-2">
-                    <Link
-                      href="/bookings"
-                      onClick={() => setIsSearchOpen(false)}
-                      className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm hover:bg-accent transition-colors"
-                    >
-                      <CalendarCheck className="h-4 w-4 text-muted-foreground" />
-                      <span>Recent Bookings</span>
-                    </Link>
-                    <Link
-                      href="/customers"
-                      onClick={() => setIsSearchOpen(false)}
-                      className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm hover:bg-accent transition-colors"
-                    >
-                      <UserIcon className="h-4 w-4 text-muted-foreground" />
-                      <span>Customers</span>
-                    </Link>
-                    <Link
-                      href="/services"
-                      onClick={() => setIsSearchOpen(false)}
-                      className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm hover:bg-accent transition-colors"
-                    >
-                      <Scissors className="h-4 w-4 text-muted-foreground" />
-                      <span>Services</span>
-                    </Link>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2">
+      {/* Right floating controls */}
+      <div className="ml-auto flex items-center gap-2">
           <button
             onClick={handleThemeToggle}
             className={cn(
-              "flex h-9 w-9 items-center justify-center rounded-lg transition-colors",
-              "hover:bg-accent hover:text-accent-foreground",
+              "flex h-10 w-10 items-center justify-center rounded-full glass-pill transition-all",
+              "hover:ring-2 hover:ring-ring/40",
               "focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
             )}
             aria-label="Toggle theme"
@@ -214,8 +205,8 @@ export function Header() {
             <button
               onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
               className={cn(
-                "relative flex h-9 w-9 items-center justify-center rounded-lg transition-colors",
-                "hover:bg-accent hover:text-accent-foreground",
+                "relative flex h-10 w-10 items-center justify-center rounded-full glass-pill transition-all",
+                "hover:ring-2 hover:ring-ring/40",
                 "focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
               )}
               aria-label={`Notifications${unreadCount > 0 ? ` (${unreadCount} unread)` : ""}`}
@@ -310,21 +301,17 @@ export function Header() {
             <button
               onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
               className={cn(
-                "flex h-9 items-center gap-2 rounded-lg bg-muted px-3 transition-colors",
-                "hover:bg-accent hover:text-accent-foreground",
+                "flex h-10 w-10 items-center justify-center rounded-full glass-pill transition-all",
+                "hover:ring-2 hover:ring-ring/40",
                 "focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
               )}
               aria-label="User menu"
               aria-expanded={isUserMenuOpen}
               aria-haspopup="true"
             >
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary">
-                <UserIcon className="h-4 w-4 text-primary-foreground" />
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                <UserIcon className="h-4 w-4" />
               </div>
-              <span className="hidden sm:block truncate max-w-[120px] text-sm font-medium text-foreground">
-                Admin User
-              </span>
-              <ChevronDown className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
             </button>
 
             <AnimatePresence>
@@ -390,7 +377,6 @@ export function Header() {
               )}
             </AnimatePresence>
           </div>
-        </div>
       </div>
     </header>
   );

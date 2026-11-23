@@ -11,9 +11,9 @@ export const metadata: Metadata = {
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex h-screen">
+    <div className="flex h-screen p-3 gap-4">
       <Sidebar />
-      <div className="flex-1 flex flex-col overflow-hidden md:ml-[var(--sidebar-width,16rem)]">
+      <div className="flex-1 flex flex-col overflow-y-auto md:ml-[calc(var(--sidebar-width,16rem)+2rem)]">
         <Header />
         <PageTransition>{children}</PageTransition>
       </div>

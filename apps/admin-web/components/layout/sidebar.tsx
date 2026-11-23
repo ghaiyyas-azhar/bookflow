@@ -85,12 +85,12 @@ export function Sidebar() {
       <motion.aside
         initial={false}
         className={cn(
-          "fixed left-0 top-0 z-50 h-screen bg-card border-r border-border flex flex-col transition-all duration-300",
-          "w-[var(--sidebar-width,16rem)] -translate-x-full md:translate-x-0",
+          "fixed left-3 top-3 z-50 glass-card rounded-3xl flex flex-col transition-all duration-300",
+          "w-[var(--sidebar-width,16rem)] h-[calc(100vh-1.5rem)] -translate-x-[calc(100%+1.5rem)] md:translate-x-0",
           isMobileOpen && "translate-x-0"
         )}
       >
-        <div className="flex h-16 items-center justify-between px-4 border-b border-border">
+        <div className="flex h-16 items-center justify-between px-4 border-b border-white/20 dark:border-white/10">
           <AnimatePresence mode="wait">
             {!isCollapsed && (
               <motion.div
@@ -130,7 +130,7 @@ export function Sidebar() {
           </button>
         </div>
 
-        <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-1" aria-label="Main navigation">
+        <nav className="flex-1 overflow-y-auto px-3 py-5 space-y-1.5" aria-label="Main navigation">
           {NAV_ITEMS.map((item) => {
             const Icon = item.icon;
             const isActive = pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href));
@@ -148,11 +148,10 @@ export function Sidebar() {
                       href={item.href}
                       onClick={() => setIsMobileOpen(false)}
                       className={cn(
-                        "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
-                        "hover:bg-accent hover:text-accent-foreground",
+                        "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200",
                         isActive
-                          ? "bg-primary text-primary-foreground shadow-sm"
-                          : "text-muted-foreground hover:text-foreground"
+                          ? "bg-primary/15 text-primary shadow-[inset_0_1px_0_0_rgba(255,255,255,0.5)] dark:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.08)]"
+                          : "text-muted-foreground hover:bg-white/40 hover:text-foreground dark:hover:bg-white/5"
                       )}
                       aria-current={isActive ? "page" : undefined}
                     >
@@ -166,13 +165,12 @@ export function Sidebar() {
                     key={`${item.href}-collapsed`}
                     href={item.href}
                     onClick={() => setIsMobileOpen(false)}
-                    className={cn(
-                      "flex h-10 w-10 items-center justify-center mx-auto rounded-lg transition-all duration-200",
-                      "hover:bg-accent hover:text-accent-foreground",
-                      isActive
-                        ? "bg-primary text-primary-foreground shadow-sm"
-                        : "text-muted-foreground hover:text-foreground"
-                    )}
+                      className={cn(
+                        "flex h-10 w-10 items-center justify-center mx-auto rounded-xl transition-all duration-200",
+                        isActive
+                          ? "bg-primary/15 text-primary shadow-[inset_0_1px_0_0_rgba(255,255,255,0.5)]"
+                          : "text-muted-foreground hover:bg-white/40 hover:text-foreground dark:hover:bg-white/5"
+                      )}
                     aria-current={isActive ? "page" : undefined}
                     aria-label={item.label}
                     title={item.label}
@@ -194,7 +192,7 @@ export function Sidebar() {
                 exit={{ opacity: 0, height: 0 }}
                 className="overflow-hidden"
               >
-                <div className="rounded-lg bg-muted p-3">
+                <div className="rounded-2xl glass-pill p-3">
                   <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
                     Quick Actions
                   </p>
