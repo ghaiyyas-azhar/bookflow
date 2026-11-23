@@ -68,3 +68,24 @@ export interface NavItem {
   label: string;
   icon: string;
 }
+
+export interface NotificationDetail {
+  label: string;
+  value: string;
+}
+
+export interface NotificationAction {
+  label: string;
+  href?: string;
+}
+
+export interface Notification {
+  id: string;
+  title: string;
+  description: string;
+  time: string;
+  type: "booking" | "staff" | "report" | "system" | "service";
+  unread: boolean;
+  details?: NotificationDetail[];
+  action?: NotificationAction;
+}

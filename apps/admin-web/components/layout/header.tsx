@@ -6,6 +6,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
 import { cn } from "@/lib/utils";
+import { mockNotifications } from "@/lib/mock-data";
+import { NotificationDetailDialog } from "@/components/notifications/notification-detail-dialog";
 import {
   Bell,
   Search,
@@ -19,6 +21,7 @@ import {
   Scissors,
   type LucideIcon,
 } from "lucide-react";
+import type { Notification } from "@/types";
 
 interface UserMenuItem {
   label: string;
@@ -29,44 +32,14 @@ interface UserMenuItem {
   disabled?: boolean;
 }
 
-const NOTIFICATIONS_MOCK = [
-  {
-    id: "1",
-    title: "New Booking Confirmed",
-    description: "Olivia Martin confirmed appointment for Premium Spa Treatment",
-    time: "5 minutes ago",
-    unread: true,
-  },
-  {
-    id: "2",
-    title: "Staff Member Added",
-    description: "Anna Johnson added to the team as Manager",
-    time: "2 hours ago",
-    unread: true,
-  },
-  {
-    id: "3",
-    title: "Monthly Report Ready",
-    description: "October revenue report has been generated and is ready for review",
-    time: "Yesterday",
-    unread: false,
-  },
-  {
-    id: "4",
-    title: "Service Updated",
-    description: "Price adjustment applied to Massage Therapy service",
-    time: "2 days ago",
-    unread: false,
-  },
-];
-
 export function Header() {
   const { theme, setTheme } = useTheme();
   const pathname = usePathname();
   const [isSearchOpen, setIsSearchOpen] = React.useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = React.useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = React.useState(false);
-  const [notifications, setNotifications] = React.useState(NOTIFICATIONS_MOCK);
+  const [notifications, setNotifications] = React.useState<Notification[]>(mockNotifications);
+  const [selectedNotification, setSelectedNotification] = React.useState<Notification | null>(null);
   const userMenuRef = React.useRef<HTMLDivElement>(null);
   const searchRef = React.useRef<HTMLDivElement>(null);
   const notificationsRef = React.useRef<HTMLDivElement>(null);
@@ -117,8 +90,47 @@ export function Header() {
     setNotifications((prev) => prev.map((notif) => ({ ...notif, unread: false })));
   };
 
-  const handleThemeToggle = () => {
-    setTheme(theme === "dark" ? "light" : "dark");
+  const handleThemeToggle = (event: React.MouseEvent<HTMLButtonElement>) => {
+    const nextTheme = theme === "dark" ? "light" : "dark";
+
+    // Check if View Transitions API is supported and user has not requested reduced motion
+    const isReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (!document.startViewTransition || isReducedMotion) {
+      setTheme(nextTheme);
+      return;
+    }
+
+    const button = event.currentTarget;
+    const rect = button.getBoundingClientRect();
+    const x = rect.left + rect.width / 2;
+    const y = rect.top + rect.height / 2;
+
+    const endRadius = Math.hypot(
+      Math.max(x, window.innerWidth - x),
+      Math.max(y, window.innerHeight - y)
+    );
+
+    const transition = document.startViewTransition(() => {
+      setTheme(nextTheme);
+    });
+
+    transition.ready.then(() => {
+      const clipPath = [
+        `circle(0px at ${x}px ${y}px)`,
+        `circle(${endRadius}px at ${x}px ${y}px)`,
+      ];
+
+      document.documentElement.animate(
+        {
+          clipPath: clipPath,
+        },
+        {
+          duration: 400,
+          easing: "ease-in-out",
+          pseudoElement: "::view-transition-new(root)",
+        }
+      );
+    });
   };
 
   return (
@@ -241,8 +253,12 @@ export function Header() {
                   {notifications.map((notification) => (
                     <div
                       key={notification.id}
+                      onClick={() => {
+                        setSelectedNotification(notification);
+                        setIsNotificationsOpen(false);
+                      }}
                       className={cn(
-                        "px-3 py-3 hover:bg-accent transition-colors border-b border-border last:border-0",
+                        "cursor-pointer px-3 py-3 hover:bg-accent transition-colors border-b border-border last:border-0",
                         notification.unread && "bg-primary/5"
                       )}
                     >
@@ -265,15 +281,6 @@ export function Header() {
                             {notification.time}
                           </p>
                         </div>
-                        {notification.unread && (
-                          <button
-                            onClick={() => handleMarkAsRead(notification.id)}
-                            className="text-[10px] font-medium text-primary hover:underline flex-shrink-0"
-                            aria-label={`Mark ${notification.title} as read`}
-                          >
-                            Read
-                          </button>
-                        )}
                       </div>
                     </div>
                   ))}
@@ -291,6 +298,13 @@ export function Header() {
               )}
             </AnimatePresence>
           </div>
+          
+          <NotificationDetailDialog
+            notification={selectedNotification}
+            open={!!selectedNotification}
+            onOpenChange={(open) => !open && setSelectedNotification(null)}
+            onMarkAsRead={handleMarkAsRead}
+          />
 
           <div className="relative" ref={userMenuRef}>
             <button

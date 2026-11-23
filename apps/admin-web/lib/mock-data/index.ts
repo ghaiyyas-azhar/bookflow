@@ -1,4 +1,4 @@
-import type { Booking, Category, Customer, DashboardMetric, Service, Staff } from "@/types";
+import type { Booking, Category, Customer, DashboardMetric, Notification, Service, Staff } from "@/types";
 
 export const dashboardMetrics: DashboardMetric[] = [
   { title: "Total Bookings", value: "1,284", change: "+12.5%", trend: "up", icon: "CalendarCheck" },
@@ -173,4 +173,126 @@ export const sidebarNavItems = [
   { href: "/customers", label: "Customers", icon: "User" },
   { href: "/reports", label: "Reports", icon: "BarChart3" },
   { href: "/settings", label: "Settings", icon: "Settings" },
+];
+
+export const mockNotifications: Notification[] = [
+  {
+    id: "1",
+    title: "New Booking Confirmed",
+    description: "Olivia Martin confirmed appointment for Premium Spa Treatment scheduled for today at 9:00 AM",
+    time: "5 minutes ago",
+    type: "booking",
+    unread: true,
+    details: [
+      { label: "Customer", value: "Olivia Martin" },
+      { label: "Service", value: "Premium Spa Treatment" },
+      { label: "Date", value: "20 November 2026" },
+      { label: "Time", value: "09:00 AM" },
+      { label: "Booking ID", value: "BK-1032" },
+    ],
+    action: { label: "View Booking", href: "/bookings" },
+  },
+  {
+    id: "2",
+    title: "Staff Member Added",
+    description: "Anna Johnson was added to the team as Manager by Admin User",
+    time: "2 hours ago",
+    type: "staff",
+    unread: true,
+    details: [
+      { label: "Staff Name", value: "Anna Johnson" },
+      { label: "Role", value: "Manager" },
+      { label: "Email", value: "anna.johnson@bookflow.com" },
+      { label: "Added By", value: "Admin User" },
+    ],
+    action: { label: "View Staff", href: "/staff" },
+  },
+  {
+    id: "3",
+    title: "Monthly Report Ready",
+    description: "October revenue report has been generated and is available for review. Total revenue: $24,560",
+    time: "Yesterday",
+    type: "report",
+    unread: false,
+    details: [
+      { label: "Report Period", value: "October 2026" },
+      { label: "Total Revenue", value: "$24,560" },
+      { label: "Growth", value: "+15.3% vs last month" },
+      { label: "Status", value: "Ready for review" },
+    ],
+    action: { label: "View Reports", href: "/reports" },
+  },
+  {
+    id: "4",
+    title: "Service Price Updated",
+    description: "Price adjustment applied to Massage Therapy service from $80 to $85",
+    time: "2 days ago",
+    type: "service",
+    unread: false,
+    details: [
+      { label: "Service", value: "Massage Therapy" },
+      { label: "Old Price", value: "$80.00" },
+      { label: "New Price", value: "$85.00" },
+      { label: "Category", value: "Wellness" },
+    ],
+    action: { label: "View Services", href: "/services" },
+  },
+  {
+    id: "5",
+    title: "New Customer Registered",
+    description: "William Chen has registered for a new account",
+    time: "3 days ago",
+    type: "system",
+    unread: false,
+    details: [
+      { label: "Customer Name", value: "William Chen" },
+      { label: "Email", value: "william.chen@example.com" },
+      { label: "Source", value: "Web Registration" },
+    ],
+    action: { label: "View Customers", href: "/customers" },
+  },
+  {
+    id: "6",
+    title: "Booking Cancelled",
+    description: "Jackson Lee cancelled appointment BK-1025 for Massage Therapy",
+    time: "4 days ago",
+    type: "booking",
+    unread: false,
+    details: [
+      { label: "Customer", value: "Jackson Lee" },
+      { label: "Booking ID", value: "BK-1025" },
+      { label: "Service", value: "Massage Therapy" },
+      { label: "Cancellation Reason", value: "Schedule conflict" },
+    ],
+    action: { label: "View Bookings", href: "/bookings" },
+  },
+  {
+    id: "7",
+    title: "Weekly Staff Schedule Published",
+    description: "Week of Oct 20 - Oct 26 staff schedule has been published",
+    time: "5 days ago",
+    type: "staff",
+    unread: false,
+    details: [
+      { label: "Schedule Period", value: "Oct 20 - Oct 26, 2026" },
+      { label: "Published By", value: "Admin User" },
+      { label: "Active Staff", value: "12 members" },
+    ],
+    action: { label: "View Staff", href: "/staff" },
+  },
+  {
+    id: "8",
+    title: "Service Inventory Low",
+    description: "Essential Oil stock is running low for Premium Spa Treatment",
+    time: "1 week ago",
+    type: "service",
+    unread: false,
+    details: [
+      { label: "Item", value: "Essential Oil (Lavender)" },
+      { label: "Service", value: "Premium Spa Treatment" },
+      { label: "Current Stock", value: "3 units remaining" },
+      { label: "Action Required", value: "Restock recommended" },
+    ],
+    action: { label: "View Services", href: "/services" },
+  },
 ];

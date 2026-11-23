@@ -3,83 +3,10 @@
 import * as React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { mockNotifications } from "@/lib/mock-data";
+import { NotificationDetailDialog } from "@/components/notifications/notification-detail-dialog";
 import { Bell, BellOff, CheckCheck, Filter } from "lucide-react";
-
-interface Notification {
-  id: string;
-  title: string;
-  description: string;
-  time: string;
-  type: "booking" | "staff" | "report" | "system" | "service";
-  unread: boolean;
-}
-
-const MOCK_NOTIFICATIONS: Notification[] = [
-  {
-    id: "1",
-    title: "New Booking Confirmed",
-    description: "Olivia Martin confirmed appointment for Premium Spa Treatment scheduled for today at 9:00 AM",
-    time: "5 minutes ago",
-    type: "booking",
-    unread: true,
-  },
-  {
-    id: "2",
-    title: "Staff Member Added",
-    description: "Anna Johnson was added to the team as Manager by Admin User",
-    time: "2 hours ago",
-    type: "staff",
-    unread: true,
-  },
-  {
-    id: "3",
-    title: "Monthly Report Ready",
-    description: "October revenue report has been generated and is available for review. Total revenue: $24,560",
-    time: "Yesterday",
-    type: "report",
-    unread: false,
-  },
-  {
-    id: "4",
-    title: "Service Price Updated",
-    description: "Price adjustment applied to Massage Therapy service from $80 to $85",
-    time: "2 days ago",
-    type: "service",
-    unread: false,
-  },
-  {
-    id: "5",
-    title: "New Customer Registered",
-    description: "William Chen has registered for a new account",
-    time: "3 days ago",
-    type: "system",
-    unread: false,
-  },
-  {
-    id: "6",
-    title: "Booking Cancelled",
-    description: "Jackson Lee cancelled appointment BK-1025 for Massage Therapy",
-    time: "4 days ago",
-    type: "booking",
-    unread: false,
-  },
-  {
-    id: "7",
-    title: "Weekly Staff Schedule Published",
-    description: "Week of Oct 20 - Oct 26 staff schedule has been published",
-    time: "5 days ago",
-    type: "staff",
-    unread: false,
-  },
-  {
-    id: "8",
-    title: "Service Inventory Low",
-    description: "Essential Oil stock is running low for Premium Spa Treatment",
-    time: "1 week ago",
-    type: "service",
-    unread: false,
-  },
-];
+import type { Notification } from "@/types";
 
 const TYPE_LABELS: Record<Notification["type"], string> = {
   booking: "Bookings",
@@ -90,9 +17,10 @@ const TYPE_LABELS: Record<Notification["type"], string> = {
 };
 
 export default function NotificationsPage() {
-  const [notifications, setNotifications] = React.useState(MOCK_NOTIFICATIONS);
+  const [notifications, setNotifications] = React.useState<Notification[]>(mockNotifications);
   const [filter, setFilter] = React.useState<"all" | "unread" | "read">("all");
   const [typeFilter, setTypeFilter] = React.useState<Notification["type"] | "all">("all");
+  const [selectedNotification, setSelectedNotification] = React.useState<Notification | null>(null);
 
   const unreadCount = notifications.filter((n) => n.unread).length;
 
@@ -196,8 +124,9 @@ export default function NotificationsPage() {
               initial={{ opacity: 0, y: -4 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 4 }}
+              onClick={() => setSelectedNotification(notification)}
               className={cn(
-                "flex items-start gap-4 p-4 border-b border-border last:border-0 transition-colors",
+                "cursor-pointer flex items-start gap-4 p-4 border-b border-border last:border-0 transition-colors hover:bg-accent/50",
                 notification.unread ? "bg-primary/5" : "bg-transparent"
               )}
             >
@@ -219,9 +148,9 @@ export default function NotificationsPage() {
                 <p className="mt-1 text-sm text-muted-foreground leading-relaxed">
                   {notification.description}
                 </p>
-                <div className="mt-2 flex items-center gap-4">
+                <div className="mt-2 flex items-center justify-between">
                   <span className="text-xs text-muted-foreground/60">{notification.time}</span>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
                     {notification.unread ? (
                       <button
                         onClick={() => handleMarkAsRead(notification.id)}
@@ -245,6 +174,13 @@ export default function NotificationsPage() {
             </motion.div>
           ))}
         </AnimatePresence>
+
+        <NotificationDetailDialog
+          notification={selectedNotification}
+          open={!!selectedNotification}
+          onOpenChange={(open) => !open && setSelectedNotification(null)}
+          onMarkAsRead={handleMarkAsRead}
+        />
 
         {filteredNotifications.length === 0 && (
           <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
